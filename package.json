@@ -15,6 +15,7 @@
     "three": "^0.115.0"
   },
   "devDependencies": {
+    "mocha": "^8.2.1",
     "prettier": "^2.0.4",
     "webpack": "^4.42.1",
     "webpack-cli": "^3.3.11",
