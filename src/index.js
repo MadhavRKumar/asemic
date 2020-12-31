@@ -1,13 +1,15 @@
 import * as THREE from 'three'
 import { WEBGL } from './webgl'
 import { MeshLine, MeshLineMaterial, MeshLineRaycast } from 'three.meshline'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
 if (WEBGL.isWebGLAvailable()) {
-	var camera, scene, renderer
-	var mouse,
+	let camera, scene, renderer, controls;
+	let mouse,
 		raycaster;
-
-
+	let mesh, material;
+	let resolution = new THREE.Vector2(window.innerWidth, window.innerHeight);
+	const clock = new THREE.Clock();
 
 	init();
 	animate();
@@ -19,7 +21,7 @@ if (WEBGL.isWebGLAvailable()) {
 			1,
 			10000
 		)
-		camera.position.set(500, 800, 1300)
+		camera.position.set(0, 0, 10)
 		camera.lookAt(0, 0, 0)
 
 		scene = new THREE.Scene()
@@ -28,16 +30,35 @@ if (WEBGL.isWebGLAvailable()) {
 		raycaster = new THREE.Raycaster()
 		mouse = new THREE.Vector2()
 
-
-
 		var ambientLight = new THREE.AmbientLight(0x606060)
 		scene.add(ambientLight)
+
+		const points = [];
+		for (let j = Math.PI/2; j> 0; j -= (2*Math.PI) / 1000) {
+			points.push(Math.cos(j)*2, Math.sin(j)*2, 0);
+		}
+
+		const line = new MeshLine();
+		line.setPoints(points);
+
+		material = new MeshLineMaterial({
+			color: new THREE.Color(0xf0f0f0),
+			lineWidth: 0.1,
+			dashArray: 1,
+			dashRatio: 0,
+			dashOffset: 0,
+			transparent: true
+		})
+
+
+		mesh = new THREE.Mesh(line, material);
+		scene.add(mesh);
 
 		renderer = new THREE.WebGLRenderer({ antialias: true })
 		renderer.setPixelRatio(window.devicePixelRatio)
 		renderer.setSize(window.innerWidth, window.innerHeight)
 		document.body.appendChild(renderer.domElement)
-
+		controls = new OrbitControls(camera, renderer.domElement);
 		window.addEventListener("resize", onWindowResize, false);
 	}
 
@@ -48,14 +69,11 @@ if (WEBGL.isWebGLAvailable()) {
 		renderer.setSize(window.innerWidth, window.innerHeight)
 	}
 
-
-	function render() {
-		renderer.render(scene, camera)
-	}
-
 	function animate() {
+		let offset = (Math.sin(clock.getElapsedTime()) + 1)/2;
+		mesh.material.uniforms.dashRatio.value = offset;	
 		requestAnimationFrame(animate);
-		render();
+		renderer.render(scene, camera)
 	}
 
 } else {
