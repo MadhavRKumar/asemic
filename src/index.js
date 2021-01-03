@@ -10,7 +10,6 @@ if (WEBGL.isWebGLAvailable()) {
 	let currentMesh;
 	let resolution = new THREE.Vector2(window.innerWidth, window.innerHeight);
 	const clock = new THREE.Clock();
-
 	init();
 	animate();
 
@@ -25,27 +24,12 @@ if (WEBGL.isWebGLAvailable()) {
 		camera.lookAt(0, 0, 0)
 
 		scene = new THREE.Scene()
-		scene.background = new THREE.Color(0x333333)
+		scene.background = new THREE.Color(0xf0f0f0)
 
 		raycaster = new THREE.Raycaster()
 		mouse = new THREE.Vector2()
 
-		var ambientLight = new THREE.AmbientLight(0x606060)
-		scene.add(ambientLight)
-
-		const material = new MeshLineMaterial({
-			color: new THREE.Color(0xf0f0f0),
-			lineWidth: 0.1,
-			dashArray: 1,
-			dashRatio: 1,
-			dashOffset: 0,
-			transparent: true,
-			resolution,
-			depthTest: false,
-		})
-
-
-		const mesh = Word({ material, start:{y:0} });
+		const mesh = Word({ start:{y:0} });
 		scene.add(mesh);
 		currentMesh = mesh;
 
@@ -67,34 +51,38 @@ if (WEBGL.isWebGLAvailable()) {
 	}
 
 	function onKeyDown() {
-		currentMesh.target -= currentMesh.inc;	
+		if(currentMesh.target > 0){
+			currentMesh.target -= currentMesh.inc;	
+		}
 	}
 
 	function animate() {
 		requestAnimationFrame(animate);
 		renderer.render(scene, camera)
 		if(!currentMesh.update()) {
-			const material = new MeshLineMaterial({
-				color: new THREE.Color(0xf0f0f0),
-				lineWidth: 0.1,
-				dashArray: 1,
-				dashRatio: 1,
-				dashOffset: 0,
-				transparent: true,
-				resolution,
-				depthTest: false,
-			})
-			const mesh = Word({ material, start: { y: currentMesh.start.y - Math.random()*2 }})
+			const mesh = Word({ start: { y: currentMesh.start.y - (Math.random()) * 1.5 }})
 			scene.add(mesh);
 			currentMesh = mesh;
 		}
 	}
 
 	function Word(params) {
-		let { material, start } = params
+		let { start } = params
+		const material = new MeshLineMaterial({
+			color: new THREE.Color(0x222222),
+			lineWidth: 0.1,
+			dashArray: 1.0,
+			dashRatio: 1,
+			dashOffset: 0,
+			transparent: true,
+			resolution,
+			depthTest: false,
+		})
 		let points = generatePoints(40); 
 		const line = new MeshLine();
-		line.geom=(points);
+		let off = Math.random()*0.75;
+		let mult = Math.random()*15;
+		line.setGeometry(points, p => off+Math.sin(mult*p));
 
 		
 		let mesh = new THREE.Mesh(line, material);
