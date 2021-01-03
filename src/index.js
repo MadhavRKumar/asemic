@@ -7,7 +7,7 @@ if (WEBGL.isWebGLAvailable()) {
 	let camera, scene, renderer, controls;
 	let mouse,
 		raycaster;
-	let mesh, material;
+	let currentMesh;
 	let resolution = new THREE.Vector2(window.innerWidth, window.innerHeight);
 	const clock = new THREE.Clock();
 
@@ -33,26 +33,21 @@ if (WEBGL.isWebGLAvailable()) {
 		var ambientLight = new THREE.AmbientLight(0x606060)
 		scene.add(ambientLight)
 
-		const points = [];
-		for (let j = Math.PI/2; j> 0; j -= (2*Math.PI) / 1000) {
-			points.push(Math.cos(j)*2, Math.sin(j)*2, 0);
-		}
-
-		const line = new MeshLine();
-		line.setPoints(points);
-
-		material = new MeshLineMaterial({
+		const material = new MeshLineMaterial({
 			color: new THREE.Color(0xf0f0f0),
 			lineWidth: 0.1,
 			dashArray: 1,
-			dashRatio: 0,
+			dashRatio: 1,
 			dashOffset: 0,
-			transparent: true
+			transparent: true,
+			resolution,
+			depthTest: false,
 		})
 
 
-		mesh = new THREE.Mesh(line, material);
+		const mesh = Word({ material, start:{y:0} });
 		scene.add(mesh);
+		currentMesh = mesh;
 
 		renderer = new THREE.WebGLRenderer({ antialias: true })
 		renderer.setPixelRatio(window.devicePixelRatio)
@@ -60,6 +55,7 @@ if (WEBGL.isWebGLAvailable()) {
 		document.body.appendChild(renderer.domElement)
 		controls = new OrbitControls(camera, renderer.domElement);
 		window.addEventListener("resize", onWindowResize, false);
+		window.addEventListener("keydown", onKeyDown, false);
 	}
 
 	function onWindowResize() {
@@ -67,13 +63,67 @@ if (WEBGL.isWebGLAvailable()) {
 		camera.updateProjectionMatrix()
 
 		renderer.setSize(window.innerWidth, window.innerHeight)
+		resolution.set(window.innerWidth, window.innerHeight);
+	}
+
+	function onKeyDown() {
+		currentMesh.target -= currentMesh.inc;	
 	}
 
 	function animate() {
-		let offset = (Math.sin(clock.getElapsedTime()) + 1)/2;
-		mesh.material.uniforms.dashRatio.value = offset;	
 		requestAnimationFrame(animate);
 		renderer.render(scene, camera)
+		if(!currentMesh.update()) {
+			const material = new MeshLineMaterial({
+				color: new THREE.Color(0xf0f0f0),
+				lineWidth: 0.1,
+				dashArray: 1,
+				dashRatio: 1,
+				dashOffset: 0,
+				transparent: true,
+				resolution,
+				depthTest: false,
+			})
+			const mesh = Word({ material, start: { y: currentMesh.start.y - Math.random()*2 }})
+			scene.add(mesh);
+			currentMesh = mesh;
+		}
+	}
+
+	function Word(params) {
+		let { material, start } = params
+		let points = generatePoints(40); 
+		const line = new MeshLine();
+		line.geom=(points);
+
+		
+		let mesh = new THREE.Mesh(line, material);
+
+		function generatePoints(numPoints) {
+			let points = [];
+			let inc = 10.0/numPoints;
+
+			for(let x=5; x >= -5; x -= Math.random()*inc){
+				let y = start.y + 2*(Math.random() + 1) / 2;
+				points.push(new THREE.Vector3(x, y, Math.random()));
+			}
+
+			const curve = new THREE.CatmullRomCurve3(points);
+			return new THREE.BufferGeometry().setFromPoints(curve.getPoints(1000));
+		}
+
+		mesh.inc = 3.0/50;
+		mesh.target = 1;
+		mesh.start = start;
+		mesh.update = function() {
+			if(mesh.material.uniforms.dashRatio.value > mesh.target){
+				mesh.material.uniforms.dashRatio.value -= 0.01;	
+				return true;
+			}
+
+			return mesh.material.uniforms.dashRatio.value > 0;
+		}
+		return mesh;
 	}
 
 } else {
