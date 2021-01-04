@@ -2,6 +2,12 @@ import * as THREE from 'three'
 import { WEBGL } from './webgl'
 import { MeshLine, MeshLineMaterial, MeshLineRaycast } from 'three.meshline'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import * as random from 'random'
+import * as TWEEN from '@tweenjs/tween.js'
+const randMean = random.normal(6, 1.5);	
+const randAmp = random.normal(4, 1.2);
+const randStrokeAmp = random.normal(6, 1);
+const randStrokeFreq = random.normal(50, 1);
 
 if (WEBGL.isWebGLAvailable()) {
 	let camera, scene, renderer, controls;
@@ -20,7 +26,7 @@ if (WEBGL.isWebGLAvailable()) {
 			1,
 			10000
 		)
-		camera.position.set(0, 0, 10)
+		camera.position.set(0, 0, 200)
 		camera.lookAt(0, 0, 0)
 
 		scene = new THREE.Scene()
@@ -29,7 +35,7 @@ if (WEBGL.isWebGLAvailable()) {
 		raycaster = new THREE.Raycaster()
 		mouse = new THREE.Vector2()
 
-		const mesh = Word({ start:{y:0} });
+		const mesh = Word({ start:{ y: 50}, amp: randAmp() });
 		scene.add(mesh);
 		currentMesh = mesh;
 
@@ -60,14 +66,24 @@ if (WEBGL.isWebGLAvailable()) {
 		requestAnimationFrame(animate);
 		renderer.render(scene, camera)
 		if(!currentMesh.update()) {
-			const mesh = Word({ start: { y: currentMesh.start.y - (Math.random()) * 1.5 }})
+			const mesh = Word( { 
+				start: { 
+					y: currentMesh.start.y - randAmp()*1.5
+				},
+				amp: randAmp()
+			})
 			scene.add(mesh);
 			currentMesh = mesh;
 		}
 	}
 
 	function Word(params) {
-		let { start } = params
+		let { 
+
+			start,
+			amp = 4 
+
+		} = params;
 		const material = new MeshLineMaterial({
 			color: new THREE.Color(0x222222),
 			lineWidth: 0.1,
@@ -78,29 +94,46 @@ if (WEBGL.isWebGLAvailable()) {
 			resolution,
 			depthTest: false,
 		})
-		let points = generatePoints(40); 
+		let points = generatePoints(50, amp); 
 		const line = new MeshLine();
-		let off = Math.random()*0.75;
-		let mult = Math.random()*15;
-		line.setGeometry(points, p => off+Math.sin(mult*p));
+		let strokeAmp = randStrokeAmp();
+		let strokeFreq = randStrokeFreq();
+		line.setGeometry(points, p=> {
+			let result = strokeAmp*((Math.sin(p*strokeFreq)+1) / 2); 
+			return (result < 0.2) ? 0 : result;
+		});
 
 		
 		let mesh = new THREE.Mesh(line, material);
+		mesh.amp = amp;
 
-		function generatePoints(numPoints) {
+		function generatePoints(numPoints, amp) {
+			const randPhase = random.normal(Math.PI, 1);
+			const randFreq = random.normal(randMean(), 7.5);
 			let points = [];
-			let inc = 10.0/numPoints;
-
-			for(let x=5; x >= -5; x -= Math.random()*inc){
-				let y = start.y + 2*(Math.random() + 1) / 2;
-				points.push(new THREE.Vector3(x, y, Math.random()));
+			let i = 0;
+			let t = Math.PI*numPoints;
+			let length = t/2;
+			let phase = randPhase();
+			let point = new THREE.Vector3();
+			while(t > 0) {
+				let mult = 1;
+				let freq = randFreq();
+				t -= freq*mult;
+				let x = t-(Math.PI)*Math.sin(t*10 + phase) - length;
+				let y = start.y + -amp*Math.sin(t*10 + phase);
+				let z = 2*(Math.sin(i*10)+1) / 2;
+				point.set(x,y,z);	
+				points.push(point.clone());
+				i++;
 			}
 
+
 			const curve = new THREE.CatmullRomCurve3(points);
-			return new THREE.BufferGeometry().setFromPoints(curve.getPoints(1000));
+			return new THREE.BufferGeometry().setFromPoints(curve.getPoints(5000));
 		}
 
-		mesh.inc = 3.0/50;
+		mesh.inc = 1.0/33;
 		mesh.target = 1;
 		mesh.start = start;
 		mesh.update = function() {
