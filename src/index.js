@@ -13,9 +13,11 @@ if (WEBGL.isWebGLAvailable()) {
 	let camera, scene, renderer, controls;
 	let mouse,
 		raycaster;
-	let currentMesh;
+	let currentMesh, currentDash, currentTarget;
 	let resolution = new THREE.Vector2(window.innerWidth, window.innerHeight);
 	const clock = new THREE.Clock();
+	let tween;
+
 	init();
 	animate();
 
@@ -38,7 +40,9 @@ if (WEBGL.isWebGLAvailable()) {
 		const mesh = Word({ start:{ y: 50}, amp: randAmp() });
 		scene.add(mesh);
 		currentMesh = mesh;
-
+		currentDash = { dashRatio: 1 };
+		currentTarget = { dashRatio: 1 }; 
+		tween = createNewTween();
 		renderer = new THREE.WebGLRenderer({ antialias: true })
 		renderer.setPixelRatio(window.devicePixelRatio)
 		renderer.setSize(window.innerWidth, window.innerHeight)
@@ -57,15 +61,17 @@ if (WEBGL.isWebGLAvailable()) {
 	}
 
 	function onKeyDown() {
-		if(currentMesh.target > 0){
-			currentMesh.target -= currentMesh.inc;	
+		if(currentTarget.dashRatio > 0){
+			currentTarget.dashRatio -= currentMesh.inc;	
+			chainTween();
 		}
 	}
 
 	function animate() {
 		requestAnimationFrame(animate);
 		renderer.render(scene, camera)
-		if(!currentMesh.update()) {
+		TWEEN.update();
+		if(currentMesh.isComplete()) {
 			const mesh = Word( { 
 				start: { 
 					y: currentMesh.start.y - randAmp()*1.5
@@ -74,7 +80,25 @@ if (WEBGL.isWebGLAvailable()) {
 			})
 			scene.add(mesh);
 			currentMesh = mesh;
+			currentDash = { dashRatio: 1 };
+			currentTarget = { dashRatio: 1 }; 
+			chainTween();
+		
 		}
+	}
+
+	function chainTween() {
+			tween.chain(createNewTween());
+	}
+
+	function createNewTween(){
+		return new TWEEN.Tween(currentDash)
+				.to(currentTarget, 250)
+				.easing(TWEEN.Easing.Exponential.Out)
+				.start()
+				.onUpdate(function () {
+					currentMesh.material.uniforms.dashRatio.value = currentDash.dashRatio;	
+				})
 	}
 
 	function Word(params) {
@@ -122,7 +146,7 @@ if (WEBGL.isWebGLAvailable()) {
 				t -= freq*mult;
 				let x = t-(Math.PI)*Math.sin(t*10 + phase) - length;
 				let y = start.y + -amp*Math.sin(t*10 + phase);
-				let z = 2*(Math.sin(i*10)+1) / 2;
+				let z = 4*(Math.sin(i*10)+1) / 2;
 				point.set(x,y,z);	
 				points.push(point.clone());
 				i++;
@@ -133,16 +157,11 @@ if (WEBGL.isWebGLAvailable()) {
 			return new THREE.BufferGeometry().setFromPoints(curve.getPoints(5000));
 		}
 
-		mesh.inc = 1.0/33;
+		mesh.inc = 1.0/20;
 		mesh.target = 1;
 		mesh.start = start;
-		mesh.update = function() {
-			if(mesh.material.uniforms.dashRatio.value > mesh.target){
-				mesh.material.uniforms.dashRatio.value -= 0.01;	
-				return true;
-			}
-
-			return mesh.material.uniforms.dashRatio.value > 0;
+		mesh.isComplete = function() {
+			return mesh.material.uniforms.dashRatio.value <= 0;
 		}
 		return mesh;
 	}
