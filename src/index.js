@@ -3,10 +3,14 @@ import { WEBGL } from './webgl'
 import { MeshLine, MeshLineMaterial, MeshLineRaycast } from 'three.meshline'
 import * as random from 'random'
 import * as TWEEN from '@tweenjs/tween.js'
+import * as Tone from 'tone'
 const randMean = random.normal(6, 1.5);	
 const randAmp = random.normal(4, 1.2);
 const randStrokeAmp = random.normal(6, 1);
 const randStrokeFreq = random.normal(50, 1);
+const randOctave = random.uniformInt(3, 5);
+const randNoteLen = random.uniformInt(1,3);
+const randNoteChance = random.uniform();
 
 if (WEBGL.isWebGLAvailable()) {
 	let camera, scene, renderer;
@@ -16,6 +20,9 @@ if (WEBGL.isWebGLAvailable()) {
 	let resolution = new THREE.Vector2(window.innerWidth, window.innerHeight);
 	const clock = new THREE.Clock();
 	let tween, cameraTween;
+	const synth = new Tone.Synth().toDestination();
+	let notes = ["C", "F#", "B", "A", "D#", "G#", "C#", "D", "F", "A#", "G", "E"];
+	
 
 	let yList = [], meshes = [];
 
@@ -77,6 +84,20 @@ if (WEBGL.isWebGLAvailable()) {
 			currentTarget.dashRatio -= currentMesh.inc;	
 			chainTween(tween, createNewTween);
 		}
+		let note = generateRandomNote();
+		let chance = randNoteChance();
+		if(chance < 0.9){
+			synth.triggerAttackRelease(note.tone, note.length);
+		}
+	}
+
+	function generateRandomNote() {
+		let tone = notes.shift();
+		let octave = randOctave();
+		let length = Math.pow(2, randNoteLen());
+		notes.push(tone);
+
+		return {tone: tone+octave, length: length+'n'};
 	}
 
 	function animate() {

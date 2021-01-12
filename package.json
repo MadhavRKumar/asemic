@@ -15,7 +15,8 @@
     "@tweenjs/tween.js": "^18.6.4",
     "random": "^2.2.0",
     "three": "^0.115.0",
-    "three.meshline": "^1.3.0"
+    "three.meshline": "^1.3.0",
+    "tone": "^14.7.58"
   },
   "devDependencies": {
     "mocha": "^8.2.1",
