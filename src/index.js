@@ -1,7 +1,6 @@
 import * as THREE from 'three'
 import { WEBGL } from './webgl'
 import { MeshLine, MeshLineMaterial, MeshLineRaycast } from 'three.meshline'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import * as random from 'random'
 import * as TWEEN from '@tweenjs/tween.js'
 const randMean = random.normal(6, 1.5);	
@@ -10,13 +9,15 @@ const randStrokeAmp = random.normal(6, 1);
 const randStrokeFreq = random.normal(50, 1);
 
 if (WEBGL.isWebGLAvailable()) {
-	let camera, scene, renderer, controls;
+	let camera, scene, renderer;
 	let mouse,
 		raycaster;
-	let currentMesh, currentDash, currentTarget;
+	let currentMesh, currentDash, currentTarget, currentY, targetY;
 	let resolution = new THREE.Vector2(window.innerWidth, window.innerHeight);
 	const clock = new THREE.Clock();
-	let tween;
+	let tween, cameraTween;
+
+	let yList = [], meshes = [];
 
 	init();
 	animate();
@@ -38,32 +39,43 @@ if (WEBGL.isWebGLAvailable()) {
 		mouse = new THREE.Vector2()
 
 		const mesh = Word({ start:{ y: 50}, amp: randAmp() });
+		meshes.push(mesh);
+		yList.push(mesh.start.y);
 		scene.add(mesh);
 		currentMesh = mesh;
 		currentDash = { dashRatio: 1 };
 		currentTarget = { dashRatio: 1 }; 
 		tween = createNewTween();
+
+		currentY = {y: 0};
+		targetY = {y: average(yList)};
+		cameraTween = createCameraTween();
+
 		renderer = new THREE.WebGLRenderer({ antialias: true })
 		renderer.setPixelRatio(window.devicePixelRatio)
 		renderer.setSize(window.innerWidth, window.innerHeight)
 		document.body.appendChild(renderer.domElement)
-		controls = new OrbitControls(camera, renderer.domElement);
 		window.addEventListener("resize", onWindowResize, false);
 		window.addEventListener("keydown", onKeyDown, false);
+		window.addEventListener("touchstart", onKeyDown, false);
 	}
 
 	function onWindowResize() {
 		camera.aspect = window.innerWidth / window.innerHeight
 		camera.updateProjectionMatrix()
 
-		renderer.setSize(window.innerWidth, window.innerHeight)
 		resolution.set(window.innerWidth, window.innerHeight);
+		renderer.setSize(window.innerWidth, window.innerHeight)
+
+		meshes.forEach(function (m) {
+			m.material.uniforms.resolution.value.copy(resolution);	
+		})
 	}
 
 	function onKeyDown() {
 		if(currentTarget.dashRatio > 0){
 			currentTarget.dashRatio -= currentMesh.inc;	
-			chainTween();
+			chainTween(tween, createNewTween);
 		}
 	}
 
@@ -78,27 +90,47 @@ if (WEBGL.isWebGLAvailable()) {
 				},
 				amp: randAmp()
 			})
+			meshes.push(mesh);
 			scene.add(mesh);
 			currentMesh = mesh;
 			currentDash = { dashRatio: 1 };
 			currentTarget = { dashRatio: 1 }; 
-			chainTween();
+			chainTween(tween, createNewTween );
+		
+			targetY.y = average(yList);
+			chainTween(cameraTween, createCameraTween);
+			yList.push(mesh.start.y);
 		
 		}
 	}
 
-	function chainTween() {
-			tween.chain(createNewTween());
+	function chainTween(toChain, tweenFunc) {
+			toChain.chain(tweenFunc());
 	}
 
 	function createNewTween(){
 		return new TWEEN.Tween(currentDash)
-				.to(currentTarget, 250)
+				.to(currentTarget, 125)
 				.easing(TWEEN.Easing.Exponential.Out)
 				.start()
 				.onUpdate(function () {
 					currentMesh.material.uniforms.dashRatio.value = currentDash.dashRatio;	
 				})
+	}
+
+	function createCameraTween() {
+		return new TWEEN.Tween(currentY)
+				.to(targetY, 500)
+				.easing(TWEEN.Easing.Exponential.Out)
+				.start()
+				.onUpdate(function () {
+					camera.position.set(0, currentY.y, camera.position.z);
+				})
+	
+	}
+
+	function average(values) {
+		return 2*values.reduce((a,b) => (a+b)) / values.length;
 	}
 
 	function Word(params) {
@@ -118,7 +150,7 @@ if (WEBGL.isWebGLAvailable()) {
 			resolution,
 			depthTest: false,
 		})
-		let points = generatePoints(50, amp); 
+		let points = generatePoints(100, amp); 
 		const line = new MeshLine();
 		let strokeAmp = randStrokeAmp();
 		let strokeFreq = randStrokeFreq();
@@ -136,7 +168,7 @@ if (WEBGL.isWebGLAvailable()) {
 			const randFreq = random.normal(randMean(), 7.5);
 			let points = [];
 			let i = 0;
-			let t = Math.PI*numPoints;
+			let t = numPoints;
 			let length = t/2;
 			let phase = randPhase();
 			let point = new THREE.Vector3();
