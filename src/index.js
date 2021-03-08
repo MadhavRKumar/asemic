@@ -8,7 +8,7 @@ const randMean = random.normal(6, 1.5);
 const randAmp = random.normal(4, 1.2);
 const randStrokeAmp = random.normal(6, 1);
 const randStrokeFreq = random.normal(50, 1);
-const randOctave = random.normal(3, 1);
+const randOctave = random.normal(3, 0.75);
 const randNoteLen = random.uniformInt(1,3);
 const randNoteChance = random.uniform();
 
@@ -36,16 +36,16 @@ if (WEBGL.isWebGLAvailable()) {
 				"G2": "G2.mp3",
 				"G#1": "Gs1.mp3",
 			},
-			baseUrl: "https://tonejs.github.io/audio/casio/"
+			baseUrl: "https://tonejs.github.io/audio/casio/",
+			onload: () => {
+				init();
+				animate();
+			}
 	}).toDestination();
 
 	let notes = shuffle(['C', 'F', 'G', 'A', 'D']);
 
 	let yList = [], meshes = [];
-
-	init();
-	animate();
-
 	function init() {
 		camera = new THREE.PerspectiveCamera(
 			45,
@@ -176,7 +176,7 @@ if (WEBGL.isWebGLAvailable()) {
 	}
 
 	function average(values) {
-		return values[values.length-1]+40;
+		return values[values.length-1]+60;
 	}
 
 	function shuffle(a) {
