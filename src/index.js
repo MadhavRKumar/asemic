@@ -8,7 +8,7 @@ const randMean = random.normal(6, 1.5);
 const randAmp = random.normal(4, 1.2);
 const randStrokeAmp = random.normal(6, 1);
 const randStrokeFreq = random.normal(50, 1);
-const randOctave = random.uniformInt(3, 5);
+const randOctave = random.normal(3, 1);
 const randNoteLen = random.uniformInt(1,3);
 const randNoteChance = random.uniform();
 
@@ -20,9 +20,26 @@ if (WEBGL.isWebGLAvailable()) {
 	let resolution = new THREE.Vector2(window.innerWidth, window.innerHeight);
 	const clock = new THREE.Clock();
 	let tween, cameraTween;
-	const synth = new Tone.Synth().toDestination();
-	let notes = ["C", "F#", "B", "A", "D#", "G#", "C#", "D", "F", "A#", "G", "E"];
-	
+	const synth = new Tone.Sampler({
+			urls: {
+				A1: "A1.mp3",
+				"A#1": "As1.mp3",
+				A2: "A2.mp3",
+				B1: "B1.mp3",
+				C2: "C2.mp3",
+				"C#2": "Cs2.mp3",
+				"D2": "D2.mp3",
+				"D#2": "Ds2.mp3",
+				"E2": "E2.mp3",
+				"F2": "F2.mp3",
+				"F#2": "Fs2.mp3",
+				"G2": "G2.mp3",
+				"G#1": "Gs1.mp3",
+			},
+			baseUrl: "https://tonejs.github.io/audio/casio/"
+	}).toDestination();
+
+	let notes = shuffle(['C', 'F', 'G', 'A', 'D']);
 
 	let yList = [], meshes = [];
 
@@ -63,8 +80,16 @@ if (WEBGL.isWebGLAvailable()) {
 		renderer.setSize(window.innerWidth, window.innerHeight)
 		document.body.appendChild(renderer.domElement)
 		window.addEventListener("resize", onWindowResize, false);
-		window.addEventListener("keydown", onKeyDown, false);
+		window.addEventListener("keyup", onKeyDown, false);
 		window.addEventListener("touchstart", onKeyDown, false);
+		document.getElementById('volume-btn').addEventListener("click", 
+			function() {
+				let current = document.getElementById('volume-icon').innerHTML;
+				let mute = current == 'volume_up';
+				document.getElementById('volume-icon').innerHTML= mute ? 'volume_mute' : 'volume_up';
+				synth.volume.value = mute ? -1000 : 0;
+			}, 
+		false);
 	}
 
 	function onWindowResize() {
@@ -151,8 +176,20 @@ if (WEBGL.isWebGLAvailable()) {
 	}
 
 	function average(values) {
-		return 2*values.reduce((a,b) => (a+b)) / values.length;
+		return values[values.length-1]+40;
 	}
+
+	function shuffle(a) {
+		var j, x, i;
+		for (i = a.length - 1; i > 0; i--) {
+			j = Math.floor(Math.random() * (i + 1));
+			x = a[i];
+			a[i] = a[j];
+			a[j] = x;
+		}
+		return a;
+	}
+
 
 	function Word(params) {
 		let { 
@@ -171,7 +208,7 @@ if (WEBGL.isWebGLAvailable()) {
 			resolution,
 			depthTest: false,
 		})
-		let points = generatePoints(100, amp); 
+		let points = generatePoints(150, amp); 
 		const line = new MeshLine();
 		let strokeAmp = randStrokeAmp();
 		let strokeFreq = randStrokeFreq();
