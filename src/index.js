@@ -4,10 +4,11 @@ import { MeshLine, MeshLineMaterial, MeshLineRaycast } from 'three.meshline'
 import * as random from 'random'
 import * as TWEEN from '@tweenjs/tween.js'
 import * as Tone from 'tone'
-const randMean = random.normal(6, 1.5);	
+const randMean = random.normal(500, 2);	
 const randAmp = random.normal(4, 1.2);
-const randStrokeAmp = random.normal(6, 1);
-const randStrokeFreq = random.normal(50, 1);
+const randInc = random.normal(20, 0.1);
+const randStrokeAmp = random.normal(10, 6);
+const randStrokeFreq = random.normal(10, 2);
 const randOctave = random.normal(3, 0.75);
 const randNoteLen = random.uniformInt(1,3);
 const randNoteChance = random.uniform();
@@ -208,7 +209,7 @@ if (WEBGL.isWebGLAvailable()) {
 			resolution,
 			depthTest: false,
 		})
-		let points = generatePoints(150, amp); 
+		let points = generatePoints(resolution.x/60, amp); 
 		const line = new MeshLine();
 		let strokeAmp = randStrokeAmp();
 		let strokeFreq = randStrokeFreq();
@@ -222,19 +223,19 @@ if (WEBGL.isWebGLAvailable()) {
 		mesh.amp = amp;
 
 		function generatePoints(numPoints, amp) {
-			const randPhase = random.normal(Math.PI, 1);
-			const randFreq = random.normal(randMean(), 7.5);
+			const randPhase = random.normal(Math.PI, 100);
+			const randFreq = random.normal(randMean(), 500);
 			let points = [];
 			let i = 0;
-			let t = numPoints;
+			let t = numPoints*Math.PI;
 			let length = t/2;
 			let phase = randPhase();
 			let point = new THREE.Vector3();
-			while(t > 0) {
-				let mult = 1;
+			while(t > -numPoints*Math.PI) {
+				let mult = 0.001*numPoints;
 				let freq = randFreq();
 				t -= freq*mult;
-				let x = t-(Math.PI)*Math.sin(t*10 + phase) - length;
+				let x = t-(Math.PI)*Math.sin(t*10 + phase);
 				let y = start.y + -amp*Math.sin(t*10 + phase);
 				let z = 4*(Math.sin(i*10)+1) / 2;
 				point.set(x,y,z);	
@@ -242,12 +243,11 @@ if (WEBGL.isWebGLAvailable()) {
 				i++;
 			}
 
-
 			const curve = new THREE.CatmullRomCurve3(points);
 			return new THREE.BufferGeometry().setFromPoints(curve.getPoints(5000));
 		}
 
-		mesh.inc = 1.0/20;
+		mesh.inc = 1.0/Math.min(20, randInc());
 		mesh.target = 1;
 		mesh.start = start;
 		mesh.isComplete = function() {
