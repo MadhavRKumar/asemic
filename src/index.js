@@ -7,7 +7,7 @@ import * as Tone from 'tone'
 const randMean = random.normal(500, 2);	
 const randAmp = random.normal(4, 1.2);
 const randInc = random.normal(10, 1);
-const randStrokeAmp = random.normal(6, 6);
+const randStrokeAmp = random.normal(6, 3);
 const randStrokeFreq = random.normal(10, 4);
 const randOctave = random.normal(3, 0.75);
 const randNoteLen = random.uniformInt(1,3);
