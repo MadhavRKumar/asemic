@@ -16,7 +16,8 @@
     "random": "^2.2.0",
     "three": "^0.115.0",
     "three.meshline": "^1.3.0",
-    "tone": "^14.7.58"
+    "tone": "^14.7.58",
+    "van11y-accessible-modal-window-aria": "^2.4.5"
   },
   "devDependencies": {
     "prettier": "^2.0.4",

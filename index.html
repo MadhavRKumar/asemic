@@ -1,40 +1,52 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-	<meta property="og:title" content="Asemic">
-	<meta property="og:description" content="A study of asemic writing ">
-	<meta property="og:image" content="https://asemic.netlify.app/static/asemic.png">
-	<meta property="og:url" content="https://asemic.netlify.app/static/asemic.png">
-	<meta name="twitter:card" content="summary_large_image">
-	<meta property="og:site_name" content="Asemic">
-	<meta name="twitter:image:alt" content="Black scribbles on gray background">
-	
-	<link rel="apple-touch-icon" sizes="57x57" href="static/apple-icon-57x57.png">
-	<link rel="apple-touch-icon" sizes="60x60" href="static/apple-icon-60x60.png">
-	<link rel="apple-touch-icon" sizes="72x72" href="static/apple-icon-72x72.png">
-	<link rel="apple-touch-icon" sizes="76x76" href="static/apple-icon-76x76.png">
-	<link rel="apple-touch-icon" sizes="114x114" href="static/apple-icon-114x114.png">
-	<link rel="apple-touch-icon" sizes="120x120" href="static/apple-icon-120x120.png">
-	<link rel="apple-touch-icon" sizes="144x144" href="static/apple-icon-144x144.png">
-	<link rel="apple-touch-icon" sizes="152x152" href="static/apple-icon-152x152.png">
-	<link rel="apple-touch-icon" sizes="180x180" href="static/apple-icon-180x180.png">
-	<link rel="icon" type="image/png" sizes="192x192"  href="static/android-icon-192x192.png">
-	<link rel="icon" type="image/png" sizes="32x32" href="static/favicon-32x32.png">
-	<link rel="icon" type="image/png" sizes="96x96" href="static/favicon-96x96.png">
-	<link rel="icon" type="image/png" sizes="16x16" href="static/favicon-16x16.png">
-	<link rel="manifest" href="static/manifest.json">
-	<meta name="msapplication-TileColor" content="#ffffff">
-	<meta name="msapplication-TileImage" content="static/ms-icon-144x144.png">
-	<meta name="theme-color" content="#ffffff">
-	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="static/styles/main.css">
-    <title>Asemic</title>
-  </head>
+		<meta property="og:title" content="Asemic">
+		<meta property="og:description" content="A study of asemic writing ">
+		<meta property="og:image" content="https://asemic.netlify.app/static/asemic.png">
+		<meta property="og:url" content="https://asemic.netlify.app/static/asemic.png">
+		<meta name="twitter:card" content="summary_large_image">
+		<meta property="og:site_name" content="Asemic">
+		<meta name="twitter:image:alt" content="Black scribbles on gray background">
+
+		<link rel="apple-touch-icon" sizes="57x57" href="static/apple-icon-57x57.png">
+		<link rel="apple-touch-icon" sizes="60x60" href="static/apple-icon-60x60.png">
+		<link rel="apple-touch-icon" sizes="72x72" href="static/apple-icon-72x72.png">
+		<link rel="apple-touch-icon" sizes="76x76" href="static/apple-icon-76x76.png">
+		<link rel="apple-touch-icon" sizes="114x114" href="static/apple-icon-114x114.png">
+		<link rel="apple-touch-icon" sizes="120x120" href="static/apple-icon-120x120.png">
+		<link rel="apple-touch-icon" sizes="144x144" href="static/apple-icon-144x144.png">
+		<link rel="apple-touch-icon" sizes="152x152" href="static/apple-icon-152x152.png">
+		<link rel="apple-touch-icon" sizes="180x180" href="static/apple-icon-180x180.png">
+		<link rel="icon" type="image/png" sizes="192x192"  href="static/android-icon-192x192.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="static/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="96x96" href="static/favicon-96x96.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="static/favicon-16x16.png">
+		<link rel="manifest" href="static/manifest.json">
+		<meta name="msapplication-TileColor" content="#ffffff">
+		<meta name="msapplication-TileImage" content="static/ms-icon-144x144.png">
+		<meta name="theme-color" content="#ffffff">
+		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+		<link rel="stylesheet" href="static/styles/main.css">
+		<title>Asemic</title>
+	</head>
   <body>
-		  <button id="volume-btn" class="float mute"><span id="volume-icon" class="material-icons">volume_up</span></button>
-    <script src="public/bundle.js"></script>
+	  <button id="volume-btn" class="float-right button"><span id="volume-icon" class="material-icons">volume_up</span></button>
+
+	  <button class="float-left button js-modal padded bold" data-modal-content-id="info-modal" data-modal-title="What to Do" data-modal-close-text="Close" data-modal-close-title="Close">i</button>
+
+	   
+		<div id="info-modal" class="hidden">
+			<p>Just start typing (or tapping) away</p>
+		</div>
+		
+		<div id="modal_description" class="hidden">
+		  Here a description.
+		</div>
+	  <script src="public/bundle.js"></script>
+	  <script src="node_modules/van11y-accessible-modal-window-aria/dist/van11y-accessible-modal-window-aria.min.js"></script>
   </body>
 </html>

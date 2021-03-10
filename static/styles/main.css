@@ -1,3 +1,4 @@
+/* Start button CSS reset */
 button {
   font-family: inherit; /* For all browsers */
   font-size: 100%; /* For all browsers */
@@ -16,6 +17,9 @@ button::-moz-focus-inner {
 button:-moz-focusring {
   outline: 1px dotted ButtonText;
 }
+/* End button CSS reset */
+
+
 body { 
   font-family: monospace;
   margin: 0; 
@@ -27,28 +31,28 @@ canvas {
   display: block; 
 }
 
-code {
-  font-family: Consolas,"courier new";
-  color: crimson;
-  background-color: #f1f1f1;
-  padding: 2px;
-}
-
-p {
-  overflow: scroll;
-}
-
-.float {
+.float-right, .float-left {
 	position:fixed;
 	top: 10px;
-	right: 10px;
 	color:#FFF;
 	text-align:center;
 }
 
-.mute {
+.float-right {
+	right: 10px;
+}
+
+.float-left {
+	left: 10px;
+}
+
+.modal-close {
+	float: right;
+}
+
+.button, .modal-close {
   border: 0;
-  border-radius: 1.5rem;
+  border-radius: 2rem;
   color: #333;
   background: #ffd0d8;
   font-family: -system-ui, sans-serif;
@@ -56,64 +60,29 @@ p {
   line-height: 1.2;
   white-space: nowrap;
   text-decoration: none;
-  padding: 0.5rem 0.5rem;
+  padding: 0.5rem;
   margin: 0.25rem;
   cursor: pointer;
   transition: all 0.1s ease-out;
 }
 
-.mute:hover {
+.button:hover, .modal-close:hover {
 	background: #f2c6cd;
 	color: #111;
 	transform: scale(1.1);
+	  cursor: pointer;
 }
 
-.mute:active {
+.button:active, .modal-close:active {
 	transform: scale(0.9);
 }
 
-.float:hover {
-  cursor: pointer;
+.padded {
+	padding: 0.5rem 1rem;
 }
 
-.icon-float{
-	margin-top:18px;
-}
-
-.modal {
-  display: none; /* Hidden by default */
-  position: fixed; /* Stay in place */
-  z-index: 1; /* Sit on top */
-  left: 0;
-  top: 0;
-  width: 100%; /* Full width */
-  height: 100%; /* Full height */
-  overflow: auto; /* Enable scroll if needed */
-  background-color: rgb(0,0,0); /* Fallback color */
-  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-}
-
-/* Modal Content/Box */
-.modal-content {
-  background-color: #fefefe;
-  margin: 15% auto; /* 15% from the top and centered */
-  padding: 20px;
-  border: 1px solid #888;
-  width: 80%; /* Could be more or less, depending on screen size */
-}
-
-.close-modal-btn {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-}
-
-.close-modal-btn:hover,
-.close-modal-btn:focus {
-  color: black;
-  text-decoration: none;
-  cursor: pointer;
+.bold {
+	font-weight: bold;
 }
 
 #webgl-error-message {
@@ -123,4 +92,82 @@ p {
   padding: 1.5em;
   width: 400px;
   margin: 5em auto 0;
+}
+
+@-webkit-keyframes pop {
+  0% {
+    opacity: 0;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+	  -webkit-transform: scale(0);
+	          transform: scale(0);
+  }
+  100% {
+    opacity: 1;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+	-webkit-transform: scale(1);
+	        transform: scale(1);
+  }
+}
+@keyframes pop {
+  0% {
+    opacity: 0;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+	  -webkit-transform: scale(0);
+	          transform: scale(0);
+  }
+  100% {
+    opacity: 1;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+	-webkit-transform: scale(1);
+	        transform: scale(1);
+  }
+}
+
+
+/* Modal styling */
+
+.hidden {
+	display: none;
+}
+
+.invisible {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+
+
+dialog {
+  display: block;
+  border: 0;
+}
+/* removes scroll when modal is opened */
+.no-scroll {
+  overflow: hidden;
+}
+/* overlay covers everything */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  z-index: 666;
+}
+/* modal */
+.modal {
+  position: fixed;
+  left: 25%;
+  right: auto;
+  top: 15%;
+  width: 50%;
+  background: #fff;
+  z-index: 667;
+  -webkit-animation: pop ease .2s 1 normal;
+          animation: pop ease .2s 1 normal; 
 }

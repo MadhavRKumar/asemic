@@ -6,9 +6,9 @@ import * as TWEEN from '@tweenjs/tween.js'
 import * as Tone from 'tone'
 const randMean = random.normal(500, 2);	
 const randAmp = random.normal(4, 1.2);
-const randInc = random.normal(20, 0.1);
-const randStrokeAmp = random.normal(10, 6);
-const randStrokeFreq = random.normal(10, 2);
+const randInc = random.normal(10, 1);
+const randStrokeAmp = random.normal(6, 6);
+const randStrokeFreq = random.normal(10, 4);
 const randOctave = random.normal(3, 0.75);
 const randNoteLen = random.uniformInt(1,3);
 const randNoteChance = random.uniform();
@@ -44,7 +44,8 @@ if (WEBGL.isWebGLAvailable()) {
 			}
 	}).toDestination();
 
-	let notes = shuffle(['C', 'F', 'G', 'A', 'D']);
+	let baseNotes = ['C', 'F', 'G', 'A', 'D'];
+	let notes = shuffle(baseNotes);
 
 	let yList = [], meshes = [];
 	function init() {
@@ -118,10 +119,12 @@ if (WEBGL.isWebGLAvailable()) {
 	}
 
 	function generateRandomNote() {
+		if(notes.length == 0) {
+			notes = shuffle(baseNotes);
+		}
 		let tone = notes.shift();
 		let octave = randOctave();
 		let length = Math.pow(2, randNoteLen());
-		notes.push(tone);
 
 		return {tone: tone+octave, length: length+'n'};
 	}
@@ -180,8 +183,9 @@ if (WEBGL.isWebGLAvailable()) {
 		return values[values.length-1]+60;
 	}
 
-	function shuffle(a) {
+	function shuffle(arr) {
 		var j, x, i;
+		let a = [...arr];
 		for (i = a.length - 1; i > 0; i--) {
 			j = Math.floor(Math.random() * (i + 1));
 			x = a[i];
