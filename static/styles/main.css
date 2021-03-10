@@ -31,6 +31,14 @@ canvas {
   display: block; 
 }
 
+a {
+	color: #FFC6D0;	
+}
+
+a:visited {
+	color: #cacaca;
+}
+
 .float-right, .float-left {
 	position:fixed;
 	top: 10px;
@@ -166,7 +174,8 @@ dialog {
   right: auto;
   top: 15%;
   width: 50%;
-  background: #fff;
+  background: #383838;
+  color: #fff;
   z-index: 667;
   -webkit-animation: pop ease .2s 1 normal;
           animation: pop ease .2s 1 normal; 
